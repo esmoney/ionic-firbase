@@ -17,6 +17,8 @@ import { AngularFireModule } from 'angularfire2';
 //Firebase Config
 import { FIREBASE_CONFIG } from './app.firebase.config';
 
+import { KakaoMapsModule } from 'kakao-maps-sdk';
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -24,7 +26,8 @@ import { FIREBASE_CONFIG } from './app.firebase.config';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    AngularFireModule.initializeApp(FIREBASE_CONFIG)
+    AngularFireModule.initializeApp(FIREBASE_CONFIG),
+    KakaoMapsModule
   ],
   providers: [
     StatusBar,

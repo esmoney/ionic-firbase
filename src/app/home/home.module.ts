@@ -5,12 +5,13 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 
 import { HomePage } from './home.page';
-
+import { KakaoMapsModule } from 'kakao-maps-sdk';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
+    KakaoMapsModule,
     RouterModule.forChild([
       {
         path: '',
