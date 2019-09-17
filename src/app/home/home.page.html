@@ -10,9 +10,13 @@
 
 <ion-content>
     <kakao-maps [mapConfig]="mapConfig"></kakao-maps>
+    <p class="modes">
+        <ion-button color="primary" (click)="selectOverlay('MARKER')">마커</ion-button>
+        <ion-button color="primary" (click)="selectOverlay2('MARKER')">마커위치</ion-button>
+    </p>
 
-    
-    <button (click)="searchWhere()">addOverlay</button>
+
+
     <!-- <button (click)="removeOverlay()">removeOverlay</button>
     <button (click)="changeLayout()">changeLayout</button>
     <button (click)="addMarker()">addMarker</button>
@@ -46,4 +50,3 @@
         </ion-tab-bar>
       </ion-tabs> -->
 </ion-content>
-
