@@ -13,10 +13,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireModule } from 'angularfire2';
- 
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 //Firebase Config
-import { FIREBASE_CONFIG } from './app.firebase.config';
-
+import { environment } from '../environments/environment';
 import { KakaoMapsModule } from 'kakao-maps-sdk';
 
 @NgModule({
@@ -26,7 +25,9 @@ import { KakaoMapsModule } from 'kakao-maps-sdk';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    AngularFireModule.initializeApp(FIREBASE_CONFIG),
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireDatabaseModule,
+    AngularFirestoreModule,
     KakaoMapsModule
   ],
   providers: [

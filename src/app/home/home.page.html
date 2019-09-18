@@ -11,8 +11,8 @@
 <ion-content>
     <kakao-maps [mapConfig]="mapConfig"></kakao-maps>
     <p class="modes">
-        <ion-button color="primary" (click)="selectOverlay('MARKER')">마커</ion-button>
-        <ion-button color="primary" (click)="selectOverlay2('MARKER')">마커위치</ion-button>
+        <ion-button color="primary" (click)="isMarkerMaking = !isMarkerMaking;" [disabled]="this.isMarkerMaking">마커</ion-button>
+        <ion-button color="primary" (click)="saveMapInfo()">저장</ion-button>
     </p>
 
 
