@@ -22,13 +22,13 @@ import { KakaoMapsModule } from 'kakao-maps-sdk';
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
+    KakaoMapsModule,
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
-    AngularFirestoreModule,
-    KakaoMapsModule
+    AngularFirestoreModule
   ],
   providers: [
     StatusBar,

@@ -1,23 +1,38 @@
 <ion-header>
-    <ion-toolbar>
-        <ion-buttons slot="start">
-            <ion-menu-button></ion-menu-button>
-        </ion-buttons>
-        <!-- <input type="text" placeholder="장소, 주소, 버스 검색"> -->
-        <ion-input placeholder="장소, 주소, 버스 검색"></ion-input>
-    </ion-toolbar>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <!-- <input type="text" placeholder="장소, 주소, 버스 검색"> -->
+    <ion-input placeholder="장소, 주소, 버스 검색"></ion-input>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <kakao-maps [mapConfig]="mapConfig"></kakao-maps>
-    <p class="modes">
-        <ion-button color="primary" (click)="isMarkerMaking = !isMarkerMaking;" [disabled]="this.isMarkerMaking">마커</ion-button>
-        <ion-button color="primary" (click)="saveMapInfo()">저장</ion-button>
-    </p>
+  <div id="map" style="width:500px;height:400px;"></div>
+
+  <!-- <kakao-maps [mapConfig]="mapConfig"></kakao-maps> -->
+  <p class="modes">
+    <ion-button (click)="test()">테스트
+    </ion-button>
+    <ion-button (click)="isMarkerMaking = !isMarkerMaking;" [disabled]="this.isMarkerMaking">마커
+      <!-- <ion-icon name="checkmark-circle" (click)="isMarkerMaking = !isMarkerMaking;" [ngClass]="{''}"[disabled]="this.isMarkerMaking"></ion-icon> -->
+      <!-- <ion-icon name="checkmark-circle" (click)="isMarkerMaking = !isMarkerMaking;"></ion-icon> -->
+    </ion-button>
+  </p>
+
+  <!-- <p class="modes2" style="background-color: white;" *ngIf="isShowToolBox">
+    Keep close to Nature's heart... and break clear away, once in awhile,
+    and climb a mountain or spend a week in the woods. Wash your spirit clean.
+  </p> -->
+
+  <div class="modes2 message" style="background-color: white;" *ngIf="isShowToolBox">
+    <h1> hello, I'm a hidden message. You found it.</h1>
+    <h2>Now Click the Heart button in the bottom to support CSS3</h2>
+  </div>
 
 
-
-    <!-- <button (click)="removeOverlay()">removeOverlay</button>
+  <!-- <button (click)="removeOverlay()">removeOverlay</button>
     <button (click)="changeLayout()">changeLayout</button>
     <button (click)="addMarker()">addMarker</button>
     <button (click)="removeMarker()">removeMarker</button>
@@ -25,7 +40,7 @@
     <button (click)="getPosition()">getPosition</button>
     <p>{{position}}</p> -->
 
-    <!-- <ion-tabs>
+  <!-- <ion-tabs>
         <ion-tab-bar slot="bottom">
           <ion-tab-button tab="schedule">
             <ion-icon name="calendar"></ion-icon>

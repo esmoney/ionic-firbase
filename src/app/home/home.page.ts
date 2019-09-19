@@ -1,45 +1,35 @@
 import { Component, OnInit } from '@angular/core';
-
-import { AngularFireDatabase, QueryFn } from 'angularfire2/database';
+import { AngularFireDatabase, AngularFireDatabaseModule } from 'angularfire2/database';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 
 import {
   KakaoMapsProvider,
   LatLng,
-  OverlayMapTypeId,
   Marker,
-  OverlayType,
-  DrawingManager,
-  InfoWindow,
-  Places,
-  LatLngBounds,
-  DrawingManagerOptions,
-  MarkerOptions,
-  CustomOverlay,
-  KakaoEvents,
   MapConfig,
-  DrawingManagerMarkerOptions
+  MarkerOptions
 } from 'kakao-maps-sdk';
+import { firestore } from 'firebase';
 
+declare var kakao: any;
 
-interface MapInfo {
-  markers: Marker[]
-}
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
+  providers: [KakaoMapsProvider]
 })
 export class HomePage implements OnInit {
   KaKaoJavascriptAPIKey = '9f73ccd3ff6aea1c551e765226754c34'; // kakao map 인증키
   mapConfig: MapConfig = { width: '100%', height: '100%' }; // 맵 설정
-  latitude: number = 0; // 위도
-  longitude: number = 0; // 경도
+  latitude: number = 37.51042524745239; // 위도
+  longitude: number = 127.04147573024453; // 경도
   isMarkerMaking: boolean = false; // 플래그
-
   mapInfo: any = {};
   coffeeOrders = []
+  isShowToolBox: boolean = false;
+
   /**
    * 홈을 초기화하는 생성자이다.
    * @param _kakaoMapsProvider 카카오맵제공자
@@ -48,39 +38,41 @@ export class HomePage implements OnInit {
     public db: AngularFireDatabase,
     public firebaseService: AngularFirestore
   ) {
+    let self = this;
+    // if (navigator.geolocation) {
+    //   // GeoLocation을 이용해서 접속 위치를 얻어온다.
+    //   navigator.geolocation.getCurrentPosition(function (position) {
+    //     self.latitude = position.coords.latitude;
+    //     self.longitude = position.coords.longitude;
+    //   });
+    // }
 
     this.mapInfo['markers'] = [];
-  }
-
-  getCoffeeOrders() {
-    this.firebaseService
-      .collection("coffeeOrders")
-      .get()
-      .subscribe(res => {
-        res.forEach(r => {
-          this.coffeeOrders.push(r.data());
-        })
-        console.log(this.coffeeOrders);
-      });
   }
 
   /**
    * 초기화 함수다.
    */
   ngOnInit(): void {
-    this.makeMap();
-    console.log(1222222)
+    // this.makeMap();
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(33.450701, 126.570667),
+			level: 3
+		};
+
+		var map = new kakao.maps.Map(container, options);
   }
+
+
+
 
   /**
    * 지도의 표시 될 정보를 가져온다.
    */
-  getMapInfo(): Observable<any> {
-    return this.firebaseService
-      .collection("mapInfo")
-      .get()
+  getMapInfo(): Observable<firestore.QuerySnapshot> {
+    return this.firebaseService.collection("mapInfo").get();
   }
-
 
   /**
    * 지도의 표시 된 정보를 저장한다.
@@ -89,7 +81,11 @@ export class HomePage implements OnInit {
     this.firebaseService
       .collection("mapInfo")
       .add(this.mapInfo)
-      .then(res => { }, err => console.log(err));
+      .then(() => { }, err => console.log(err));
+  }
+
+  updateMapInfo(): void {
+    this.firebaseService.doc('mapInfo/' + this.mapInfo.id).update(this.mapInfo);
   }
 
   /**
@@ -97,13 +93,6 @@ export class HomePage implements OnInit {
    */
   makeMap(): void {
     let self = this;
-    if (navigator.geolocation) {
-      // GeoLocation을 이용해서 접속 위치를 얻어온다.
-      navigator.geolocation.getCurrentPosition(function (position) {
-        self.latitude = position.coords.latitude;
-        self.longitude = position.coords.longitude;
-      });
-    }
 
     this._kakaoMapsProvider
       .loadKakaoMapSDK(self.KaKaoJavascriptAPIKey)
@@ -119,7 +108,6 @@ export class HomePage implements OnInit {
             .then(() => {
               this._kakaoMapsProvider.addListener(this._kakaoMapsProvider.getMapInstance(), 'click', res => {
                 if (self.isMarkerMaking) {
-                  console.log('res :', res);
                   let marker = new Marker({ position: res.response.latLng })
                   marker.setMap(self._kakaoMapsProvider.getMapInstance());
 
@@ -129,28 +117,46 @@ export class HomePage implements OnInit {
                   });
 
                   self.isMarkerMaking = false;
+
+                  if (self.mapInfo.markers.length === 1) {
+                    self.saveMapInfo();
+                  }
+                  else if (self.mapInfo.markers.length > 1) {
+                    self.updateMapInfo();
+                  }
                 }
               });
 
               self.getMapInfo()
-                .subscribe(res => {
-                  res.forEach(r => {
-                    r.data().markers.forEach(marker => {
-                      new Marker({ position: new LatLng(marker.latitude, marker.longitude) }).setMap(self._kakaoMapsProvider.getMapInstance());
+                .subscribe((res: firestore.QuerySnapshot) => {
+                  res.forEach((qDocSnap: firestore.QueryDocumentSnapshot) => {
+                    qDocSnap.data().markers.forEach(marker => {
+                      let m = new Marker({ position: new LatLng(marker.latitude, marker.longitude) })
+                      m.setMap(self._kakaoMapsProvider.getMapInstance());
+                      m.setClickable(true);
+                      self.mapInfo['id'] = qDocSnap.id;
+                      self.mapInfo.markers.push(marker);
                     });
                   });
                 });
             })
-            .catch(err => { console.log('err :', err); });
+            .catch(err => {
+              console.log('err1 :', err);
+              self.makeMap();
+            });
         },
         err => {
-          location.reload();
-          this.makeMap();
-          console.log('err ', err);
+          self.makeMap();
+          console.log('err2 ', err);
         }
       )
       .catch(e => {
-        console.log('catch ', e);
+        self.makeMap();
+        console.log('catch3 ', e);
       });
+  }
+
+  test(): void {
+    this.isShowToolBox = !this.isShowToolBox;
   }
 }

@@ -8,10 +8,10 @@ import { HomePage } from './home.page';
 import { KakaoMapsModule } from 'kakao-maps-sdk';
 @NgModule({
   imports: [
+    KakaoMapsModule,
     CommonModule,
     FormsModule,
     IonicModule,
-    KakaoMapsModule,
     RouterModule.forChild([
       {
         path: '',
