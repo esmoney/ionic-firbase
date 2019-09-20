@@ -9,15 +9,15 @@
 </ion-header>
 
 <ion-content>
-  <div id="map" style="width:500px;height:400px;"></div>
+  <div id="map" style="width: 100%; height:100%;"></div>
 
-  <!-- <kakao-maps [mapConfig]="mapConfig"></kakao-maps> -->
   <p class="modes">
-    <ion-button (click)="test()">테스트
+    <ion-button (click)="isMarkerMaking = !isMarkerMaking;" [disabled]="this.isMarkerMaking">
+      <ion-icon name="checkmark-circle"></ion-icon>
     </ion-button>
-    <ion-button (click)="isMarkerMaking = !isMarkerMaking;" [disabled]="this.isMarkerMaking">마커
-      <!-- <ion-icon name="checkmark-circle" (click)="isMarkerMaking = !isMarkerMaking;" [ngClass]="{''}"[disabled]="this.isMarkerMaking"></ion-icon> -->
-      <!-- <ion-icon name="checkmark-circle" (click)="isMarkerMaking = !isMarkerMaking;"></ion-icon> -->
+
+    <ion-button (click)="test()" [disabled]="!this.isMarkerDel">
+      <ion-icon name="remove-circle"></ion-icon>
     </ion-button>
   </p>
 
@@ -26,10 +26,14 @@
     and climb a mountain or spend a week in the woods. Wash your spirit clean.
   </p> -->
 
-  <div class="modes2 message" style="background-color: white;" *ngIf="isShowToolBox">
+  <!-- <div class="modes2 message" style="background-color: white;" *ngIf="isShowToolBox">
     <h1> hello, I'm a hidden message. You found it.</h1>
     <h2>Now Click the Heart button in the bottom to support CSS3</h2>
-  </div>
+  </div> -->
+
+
+
+
 
 
   <!-- <button (click)="removeOverlay()">removeOverlay</button>

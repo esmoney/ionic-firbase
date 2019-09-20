@@ -30,6 +30,10 @@ export class HomePage implements OnInit {
   coffeeOrders = []
   isShowToolBox: boolean = false;
 
+  map;
+  width = { width: 350 + 'px', height: 100 + '%' };
+  isMarkerDel: boolean = false;
+  selMarker: Marker;
   /**
    * 홈을 초기화하는 생성자이다.
    * @param _kakaoMapsProvider 카카오맵제공자
@@ -48,24 +52,14 @@ export class HomePage implements OnInit {
     // }
 
     this.mapInfo['markers'] = [];
+    this.initMap();
   }
 
   /**
    * 초기화 함수다.
    */
   ngOnInit(): void {
-    // this.makeMap();
-		var container = document.getElementById('map');
-		var options = {
-			center: new kakao.maps.LatLng(33.450701, 126.570667),
-			level: 3
-		};
-
-		var map = new kakao.maps.Map(container, options);
   }
-
-
-
 
   /**
    * 지도의 표시 될 정보를 가져온다.
@@ -88,75 +82,89 @@ export class HomePage implements OnInit {
     this.firebaseService.doc('mapInfo/' + this.mapInfo.id).update(this.mapInfo);
   }
 
-  /**
-   * 맵을 초기화 한다.
-   */
-  makeMap(): void {
+  initMap(): void {
     let self = this;
 
-    this._kakaoMapsProvider
-      .loadKakaoMapSDK(self.KaKaoJavascriptAPIKey)
-      .then(
-        () => {
-          let mapConfig = {
-            center: new LatLng(self.latitude, self.longitude),
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.onload = function () {
+      // 카카오맵 SDK가 로딩 된다면 카카오맵을 초기화한다.
+      kakao.maps.load(function () {
+        var container = document.getElementById('map'),
+          options = {
+            center: new kakao.maps.LatLng(self.latitude, self.longitude),
             level: 3,
-            // mapTypeId: MapTypeId.ROADMAP,
           };
-          this._kakaoMapsProvider
-            .init('kakaomaps-div', mapConfig)
-            .then(() => {
-              this._kakaoMapsProvider.addListener(this._kakaoMapsProvider.getMapInstance(), 'click', res => {
-                if (self.isMarkerMaking) {
-                  let marker = new Marker({ position: res.response.latLng })
-                  marker.setMap(self._kakaoMapsProvider.getMapInstance());
 
-                  self.mapInfo.markers.push({
-                    latitude: marker.getPosition().getLat(),
-                    longitude: marker.getPosition().getLng()
-                  });
+        self.map = new kakao.maps.Map(container, options);
 
-                  self.isMarkerMaking = false;
+        kakao.maps.event.addListener(self.map, 'click', res => {
+          if (self.isMarkerMaking) {
+            let marker = new Marker({ position: res.latLng })
 
-                  if (self.mapInfo.markers.length === 1) {
-                    self.saveMapInfo();
-                  }
-                  else if (self.mapInfo.markers.length > 1) {
-                    self.updateMapInfo();
-                  }
-                }
-              });
+            marker.setMap(self.map);
+            marker.setTitle(self.mapInfo.markers.length);
 
-              self.getMapInfo()
-                .subscribe((res: firestore.QuerySnapshot) => {
-                  res.forEach((qDocSnap: firestore.QueryDocumentSnapshot) => {
-                    qDocSnap.data().markers.forEach(marker => {
-                      let m = new Marker({ position: new LatLng(marker.latitude, marker.longitude) })
-                      m.setMap(self._kakaoMapsProvider.getMapInstance());
-                      m.setClickable(true);
-                      self.mapInfo['id'] = qDocSnap.id;
-                      self.mapInfo.markers.push(marker);
-                    });
-                  });
-                });
-            })
-            .catch(err => {
-              console.log('err1 :', err);
-              self.makeMap();
+            // 마커에 클릭이벤트를 등록합니다
+            kakao.maps.event.addListener(marker, 'click', function () {
+              self.isMarkerDel = true;
+              self.selMarker = marker;
             });
-        },
-        err => {
-          self.makeMap();
-          console.log('err2 ', err);
-        }
-      )
-      .catch(e => {
-        self.makeMap();
-        console.log('catch3 ', e);
+
+            self.mapInfo.markers.push({
+              title: self.mapInfo.markers.length,
+              latitude: marker.getPosition().getLat(),
+              longitude: marker.getPosition().getLng()
+            });
+
+            self.isMarkerMaking = false;
+
+            if (self.mapInfo.markers.length === 1) {
+              self.saveMapInfo();
+            }
+            else if (self.mapInfo.markers.length > 1) {
+              self.updateMapInfo();
+            }
+          }
+        });
+
+        // 맵 정보를 조회요청한다.
+        self.getMapInfo()
+          .subscribe((res: firestore.QuerySnapshot) => {
+            res.forEach((qDocSnap: firestore.QueryDocumentSnapshot) => {
+              qDocSnap.data().markers.forEach((marker, idx) => {
+                let m = new Marker({ position: new LatLng(marker.latitude, marker.longitude) })
+                m.setMap(self.map);
+                m.setClickable(true);
+                m.setTitle(idx);
+
+                // 마커에 클릭이벤트를 등록합니다
+                kakao.maps.event.addListener(m, 'click', function () {
+                  self.isMarkerDel = true;
+                  self.selMarker = m;
+                });
+
+                self.mapInfo['id'] = qDocSnap.id;
+                marker['title'] = idx;
+                self.mapInfo.markers.push(marker);
+              });
+            });
+          });
       });
+
+
+    }
+    script.src = 'http://dapi.kakao.com/v2/maps/sdk.js?appkey=053a5f27bc5c663c66ef4e4a721b4eb3&autoload=false';
+    document.getElementsByTagName('head')[0].appendChild(script);
   }
 
   test(): void {
-    this.isShowToolBox = !this.isShowToolBox;
+    let idx = this.mapInfo.markers.findIndex(marker => {
+      return marker.title == this.selMarker.getTitle()
+    });
+    this.mapInfo.markers.splice(idx, 1);
+    this.selMarker.setMap(null);
+    this.isMarkerDel = !this.isMarkerDel;
+    this.updateMapInfo();
   }
 }
