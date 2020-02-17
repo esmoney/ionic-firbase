@@ -9,12 +9,12 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
-//Firebase Module
-import { AngularFireAuthModule } from 'angularfire2/auth';
-import { AngularFireDatabaseModule } from 'angularfire2/database';
-import { AngularFireModule } from 'angularfire2';
+// Firebase Module
+import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
-//Firebase Config
+// Firebase Config
 import { environment } from '../environments/environment';
 import { KakaoMapsModule } from 'kakao-maps-sdk';
 
@@ -27,6 +27,7 @@ import { KakaoMapsModule } from 'kakao-maps-sdk';
     IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireAuthModule,
     AngularFireDatabaseModule,
     AngularFirestoreModule
   ],
@@ -37,4 +38,4 @@ import { KakaoMapsModule } from 'kakao-maps-sdk';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
